@@ -19,7 +19,7 @@ Alternatively, to install with Module::Build, you can use the following commands
 
 DEPENDENCIES
 
-None.
+DBI
 
 
 COPYRIGHT AND LICENCE
