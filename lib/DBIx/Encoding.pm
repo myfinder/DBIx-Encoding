@@ -96,6 +96,12 @@ DBIx::Encoding - Doing endoce/decode in the character code which you appointed i
 
 	my $dbh = DBI->connect(@dsn) or die;
 
+=head1 DESCRIPTION
+
+DBIx::Encoding is encode/decode in the charset which you appointed in an attribute.
+but, this module does not yet support blob.
+I am going to support it in a future version.
+
 =head1 AUTHOR
 
 Tatsuro Hisamori E<lt>myfinder@cpan.orgE<gt>
