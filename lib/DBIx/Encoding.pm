@@ -19,13 +19,13 @@ use base qw(DBI::db);
  
 sub connected {
 	my ($self, $dsn, $user, $credential, $attrs) = @_;
-	$self->{private_dbix_endocing} = { 'encoding' => $attrs->{encoding} || 'utf8' };
+	$self->{private_dbix_encoding} = { 'encoding' => $attrs->{encoding} || 'utf8' };
 }
 
 sub prepare {
 	my ($self, @args) = @_;
 	my $sth = $self->SUPER::prepare(@args) or return;
-	$sth->{private_dbix_endocing} = $self->{private_dbix_endocing};
+	$sth->{private_dbix_encoding} = $self->{private_dbix_encoding};
 
 	return $sth;
 }
@@ -40,7 +40,7 @@ use Encode;
  
 sub execute {
 	my ($self, @args) = @_;
-	my $encoding = $self->{private_dbix_endocing}->{encoding};
+	my $encoding = $self->{private_dbix_encoding}->{encoding};
 
 	@args = map { Encode::encode($encoding, $_) } @args;
 
@@ -49,7 +49,7 @@ sub execute {
 
 sub fetch {
 	my ($self, @args) = @_;
-	my $encoding = $self->{private_dbix_endocing}->{encoding};
+	my $encoding = $self->{private_dbix_encoding}->{encoding};
 	
 	my $row = $self->SUPER::fetch(@args) or return;
 	
@@ -62,7 +62,7 @@ sub fetch {
  
 sub fetchrow_arrayref {
 	my ($self, @args) = @_;
-	my $encoding = $self->{private_dbix_endocing}->{encoding};
+	my $encoding = $self->{private_dbix_encoding}->{encoding};
 
 	my $array_ref = $self->SUPER::fetchrow_arrayref(@args) or return;
 	
@@ -78,7 +78,7 @@ __END__
 
 =head1 NAME
 
-DBIx::Encoding - Doing endoce/decode in the character code which you appointed in an attribute.
+DBIx::Encoding - Doing encode/decode in the character code which you appointed in an attribute.
 
 =head1 SYNOPSIS
 
