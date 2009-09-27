@@ -1,4 +1,7 @@
 Revision history for Perl extension DBIx::Encoding
 
+0.02    Mon Sep 27 21:54:30 2009
+        - typo repair
+
 0.01    Mon Sep 21 13:47:43 2009
         - original version
