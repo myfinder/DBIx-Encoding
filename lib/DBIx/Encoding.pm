@@ -9,14 +9,14 @@ package DBIx::Encoding;
 use base qw(DBI);
 
 use version;
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 ###
 # DBIx::Encoding::db
 #
 package DBIx::Encoding::db;
 use base qw(DBI::db);
- 
+
 sub connected {
 	my ($self, $dsn, $user, $credential, $attrs) = @_;
 	$self->{private_dbix_encoding} = { 'encoding' => $attrs->{encoding} || 'utf8' };
@@ -26,7 +26,7 @@ sub prepare {
 	my ($self, @args) = @_;
 	my $sth = $self->SUPER::prepare(@args) or return;
 	$sth->{private_dbix_encoding} = $self->{private_dbix_encoding};
-
+	
 	return $sth;
 }
 
@@ -35,15 +35,15 @@ sub prepare {
 #
 package DBIx::Encoding::st;
 use base qw(DBI::st);
- 
+
 use Encode;
- 
+
 sub execute {
 	my ($self, @args) = @_;
 	my $encoding = $self->{private_dbix_encoding}->{encoding};
-
+	
 	@args = map { Encode::encode($encoding, $_) } @args;
-
+	
 	return $self->SUPER::execute(@args);
 }
 
@@ -56,20 +56,50 @@ sub fetch {
 	for my $val (@$row) {
 		$val = Encode::decode($encoding, $val);
 	}
-
+	
 	return $row;
 }
- 
+
 sub fetchrow_arrayref {
 	my ($self, @args) = @_;
 	my $encoding = $self->{private_dbix_encoding}->{encoding};
-
+	
 	my $array_ref = $self->SUPER::fetchrow_arrayref(@args) or return;
 	
 	for my $val (@$array_ref) {
 		$val = Encode::decode($encoding, $val);
 	}
+	
+	return $array_ref;
+}
 
+sub fetchrow_array {
+	my $self = shift;
+	my $encoding = $self->{private_dbix_encoding}->{encoding};
+	
+	my @array = $self->SUPER::fetchrow_array or return;
+	
+	my @result_array;
+	
+	for my $val (@array) {
+		push @result_array, Encode::decode($encoding, $val);
+	}
+	
+	return @result_array;
+}
+
+sub fetchall_arrayref {
+	my $self = shift;
+	my $encoding = $self->{private_dbix_encoding}->{encoding};
+	
+	my $array_ref = $self->SUPER::fetchall_arrayref or return;
+	
+	for my $array (@$array_ref) {
+		for my $val (@$array) {
+			$val = Encode::decode($encoding, $val);
+		}
+	}
+	
 	return $array_ref;
 }
 
@@ -82,7 +112,7 @@ DBIx::Encoding - Doing encode/decode in the character code which you appointed i
 
 =head1 SYNOPSIS
 
-  use DBIx::Encoding;
+	use DBIx::Encoding;
 	
 	my @dsn = (
 			'dbi:mysql:host=localhost;database=mysql;mysql_socket=/tmp/mysql.sock;',
@@ -93,7 +123,7 @@ DBIx::Encoding - Doing encode/decode in the character code which you appointed i
 				encoding => 'utf8',
 			},
 	);
-
+	
 	my $dbh = DBI->connect(@dsn) or die;
 
 =head1 DESCRIPTION
