@@ -1,5 +1,8 @@
 Revision history for Perl extension DBIx::Encoding
 
+0.05    Mon Dec 08 16:45:30 2009
+        - bug fix
+
 0.03    Mon Dec 08 04:26:30 2009
         - adding support method and test
 
