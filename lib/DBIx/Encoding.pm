@@ -60,19 +60,6 @@ sub fetch {
 	return $row;
 }
 
-sub fetchrow_arrayref {
-	my ($self, @args) = @_;
-	my $encoding = $self->{private_dbix_encoding}->{encoding};
-	
-	my $array_ref = $self->SUPER::fetchrow_arrayref(@args) or return;
-	
-	for my $val (@$array_ref) {
-		$val = Encode::decode($encoding, $val);
-	}
-	
-	return $array_ref;
-}
-
 sub fetchrow_array {
 	my $self = shift;
 	my $encoding = $self->{private_dbix_encoding}->{encoding};
@@ -89,14 +76,18 @@ sub fetchrow_array {
 }
 
 sub fetchall_arrayref {
-	my $self = shift;
+	my ($self, $slice, $max_rows) = @_;
 	my $encoding = $self->{private_dbix_encoding}->{encoding};
 	
-	my $array_ref = $self->SUPER::fetchall_arrayref or return;
+	my $array_ref;
 	
-	for my $array (@$array_ref) {
-		for my $val (@$array) {
-			$val = Encode::decode($encoding, $val);
+	if ($slice) {
+		$array_ref = $self->SUPER::fetchall_arrayref($slice, $max_rows) or return;
+	}
+	else {
+		$array_ref = $self->SUPER::fetchall_arrayref or return;
+		for my $array (@{ $array_ref }) {
+			@{ $array } = map { Encode::decode($encoding, $_) } @{ $array };
 		}
 	}
 	

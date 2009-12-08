@@ -36,7 +36,7 @@ my $mysqld_cp932 = Test::mysqld->new(
 
 ###
 # test plan
-plan tests => 14;
+plan tests => 16;
 
 # utf8 DB
 my @dsn_utf8 = (
@@ -238,6 +238,12 @@ $result_set = $sth_select->fetchall_arrayref;
 
 ok(Encode::is_utf8(${ $result_set }[0][1]));
 
+# fetchall_arrayref
+$sth_select->execute($test_text);
+$result_set = $sth_select->fetchall_arrayref(+{});
+
+ok(Encode::is_utf8(${ $result_set }[0]->{text}));
+
 ###
 # statement handle method without DBIx::Encoding
 
@@ -246,8 +252,6 @@ my $dbh_utf8_no_dbix_encoding = DBI->connect(@dsn_utf8_no_dbix_encoding) or die;
 $sth_select = $dbh_utf8_no_dbix_encoding->prepare(<<'SQL');
 select * from test_utf8 where text = ?
 SQL
-
-$result_set;
 
 # fetchrow_array
 $sth_select->execute($test_text);
@@ -272,3 +276,9 @@ $sth_select->execute($test_text);
 $result_set = $sth_select->fetchall_arrayref;
 
 ok(! Encode::is_utf8(${ $result_set }[0][1]));
+
+# fetchall_arrayref
+$sth_select->execute($test_text);
+$result_set = $sth_select->fetchall_arrayref(+{});
+
+ok(! Encode::is_utf8(${ $result_set }[0]->{text}));
