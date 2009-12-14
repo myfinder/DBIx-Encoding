@@ -8,6 +8,7 @@ use Test::mysqld;
 use utf8;
 use Encode;
 
+use DBI qw(:sql_types);
 use DBIx::Encoding;
 
 ###
@@ -36,7 +37,7 @@ my $mysqld_cp932 = Test::mysqld->new(
 
 ###
 # test plan
-plan tests => 16;
+#plan tests => 16;
 
 # utf8 DB
 my @dsn_utf8 = (
@@ -86,8 +87,8 @@ my $dbh_cp932 = DBI->connect(@dsn_cp932) or die;
 my $sth_utf8  = $dbh_utf8->prepare("select 'テストテキスト' as string");
 my $sth_cp932 = $dbh_cp932->prepare("select 'テストテキスト' as string");
 
-$sth_utf8->execute();
-$sth_cp932->execute();
+$sth_utf8->execute;
+$sth_cp932->execute;
 
 my $rs_utf8  = $sth_utf8->fetchrow_hashref;
 my $rs_cp932 = $sth_cp932->fetchrow_hashref;
@@ -136,7 +137,8 @@ my $sth_insert_utf8 = $dbh_utf8->prepare(<<'SQL');
 insert into test_utf8 (id, text) values (1, ?)
 SQL
 
-$sth_insert_utf8->execute($test_text);
+$sth_insert_utf8->bind_param(1, $test_text, SQL_VARCHAR);
+$sth_insert_utf8->execute;
 $sth_insert_utf8->finish;
 
 # cp932 table
@@ -144,7 +146,8 @@ my $sth_insert_cp932 = $dbh_cp932->prepare(<<'SQL');
 insert into test_cp932 (id, text) values (1, ?)
 SQL
 
-$sth_insert_cp932->execute($test_text);
+$sth_insert_cp932->bind_param(1, $test_text, SQL_VARCHAR);
+$sth_insert_cp932->execute;
 $sth_insert_cp932->finish;
 
 ###
@@ -155,7 +158,8 @@ my $sth_select_utf8 = $dbh_utf8->prepare(<<'SQL');
 select * from test_utf8 where text = ?
 SQL
 
-$sth_select_utf8->execute($test_text);
+$sth_select_utf8->bind_param(1, $test_text, SQL_VARCHAR);
+$sth_select_utf8->execute;
 
 my $sth_select_utf8_result = $sth_select_utf8->fetchrow_hashref;
 
@@ -168,7 +172,8 @@ my $sth_select_cp932 = $dbh_cp932->prepare(<<'SQL');
 select * from test_cp932 where text = ?
 SQL
 
-$sth_select_cp932->execute($test_text);
+$sth_select_cp932->bind_param(1, $test_text, SQL_VARCHAR);
+$sth_select_cp932->execute;
 
 my $sth_select_cp932_result = $sth_select_cp932->fetchrow_hashref;
 
@@ -184,7 +189,8 @@ $sth_select_utf8 = $dbh_utf8->prepare(<<'SQL');
 select * from test_utf8 where text = ?
 SQL
 
-$sth_select_utf8->execute(Encode::encode('utf8', $test_text));
+$sth_select_utf8->bind_param(1, Encode::encode('utf8', $test_text), SQL_VARCHAR);
+$sth_select_utf8->execute;
 
 $sth_select_utf8_result = $sth_select_utf8->fetchrow_hashref;
 
@@ -197,7 +203,8 @@ $sth_select_cp932 = $dbh_cp932->prepare(<<'SQL');
 select * from test_cp932 where text = ?
 SQL
 
-$sth_select_cp932->execute(Encode::encode('cp932', $test_text));
+$sth_select_cp932->bind_param(1, Encode::encode('cp932', $test_text), SQL_VARCHAR);
+$sth_select_cp932->execute;
 
 $sth_select_cp932_result = $sth_select_cp932->fetchrow_hashref;
 
@@ -215,31 +222,36 @@ SQL
 my $result_set;
 
 # fetchrow_array
-$sth_select->execute($test_text);
+$sth_select->bind_param(1, $test_text, SQL_VARCHAR);
+$sth_select->execute;
 my @result_set = $sth_select->fetchrow_array;
 
 ok(Encode::is_utf8($result_set[1]));
 
 # fetchrow_arrayref
-$sth_select->execute($test_text);
+$sth_select->bind_param(1, $test_text, SQL_VARCHAR);
+$sth_select->execute;
 $result_set = $sth_select->fetchrow_arrayref;
 
 ok(Encode::is_utf8($result_set[1]));
 
 # fetchrow_hashref
-$sth_select->execute($test_text);
+$sth_select->bind_param(1, $test_text, SQL_VARCHAR);
+$sth_select->execute;
 $result_set = $sth_select->fetchrow_hashref;
 
 ok(Encode::is_utf8($result_set->{text}));
 
 # fetchall_arrayref
-$sth_select->execute($test_text);
+$sth_select->bind_param(1, $test_text, SQL_VARCHAR);
+$sth_select->execute;
 $result_set = $sth_select->fetchall_arrayref;
 
 ok(Encode::is_utf8(${ $result_set }[0][1]));
 
 # fetchall_arrayref
-$sth_select->execute($test_text);
+$sth_select->bind_param(1, $test_text, SQL_VARCHAR);
+$sth_select->execute;
 $result_set = $sth_select->fetchall_arrayref(+{});
 
 ok(Encode::is_utf8(${ $result_set }[0]->{text}));
@@ -254,31 +266,38 @@ select * from test_utf8 where text = ?
 SQL
 
 # fetchrow_array
-$sth_select->execute($test_text);
+$sth_select->bind_param(1, $test_text, SQL_VARCHAR);
+$sth_select->execute;
 @result_set = $sth_select->fetchrow_array;
 
 ok(! Encode::is_utf8($result_set[1]));
 
 # fetchrow_arrayref
-$sth_select->execute($test_text);
+$sth_select->bind_param(1, $test_text, SQL_VARCHAR);
+$sth_select->execute;
 $result_set = $sth_select->fetchrow_arrayref;
 
 ok(! Encode::is_utf8($result_set[1]));
 
 # fetchrow_hashref
-$sth_select->execute($test_text);
+$sth_select->bind_param(1, $test_text, SQL_VARCHAR);
+$sth_select->execute;
 $result_set = $sth_select->fetchrow_hashref;
 
 ok(! Encode::is_utf8($result_set->{text}));
 
 # fetchall_arrayref
-$sth_select->execute($test_text);
+$sth_select->bind_param(1, $test_text, SQL_VARCHAR);
+$sth_select->execute;
 $result_set = $sth_select->fetchall_arrayref;
 
 ok(! Encode::is_utf8(${ $result_set }[0][1]));
 
 # fetchall_arrayref
-$sth_select->execute($test_text);
+$sth_select->bind_param(1, $test_text, SQL_VARCHAR);
+$sth_select->execute;
 $result_set = $sth_select->fetchall_arrayref(+{});
 
 ok(! Encode::is_utf8(${ $result_set }[0]->{text}));
+
+done_testing;

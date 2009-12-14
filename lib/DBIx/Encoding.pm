@@ -9,7 +9,7 @@ package DBIx::Encoding;
 use base qw(DBI);
 
 use version;
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 ###
 # DBIx::Encoding::db
@@ -37,6 +37,15 @@ package DBIx::Encoding::st;
 use base qw(DBI::st);
 
 use Encode;
+
+sub bind_param {
+	my ($self, @args) = @_;
+	my $encoding = $self->{private_dbix_encoding}->{encoding};
+	
+	$args[1] = Encode::encode($encoding, $args[1]);
+	
+	return $self->SUPER::bind_param(@args);
+}
 
 sub execute {
 	my ($self, @args) = @_;
@@ -66,13 +75,7 @@ sub fetchrow_array {
 	
 	my @array = $self->SUPER::fetchrow_array or return;
 	
-	my @result_array;
-	
-	for my $val (@array) {
-		push @result_array, Encode::decode($encoding, $val);
-	}
-	
-	return @result_array;
+	return map { Encode::decode($encoding, $_) } @array;
 }
 
 sub fetchall_arrayref {
