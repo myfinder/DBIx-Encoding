@@ -42,7 +42,7 @@ sub bind_param {
     my ($self, @args) = @_;
     my $encoding = $self->{private_dbix_encoding}->{encoding};
     
-    $args[1] = Encode::encode($encoding, $args[1]) if Encode::is_utf8($args[1]);
+    $args[1] = Encode::encode($encoding, $args[1]);
     
     return $self->SUPER::bind_param(@args);
 }
@@ -51,9 +51,7 @@ sub execute {
     my ($self, @args) = @_;
     my $encoding = $self->{private_dbix_encoding}->{encoding};
     
-    @args = map {
-        Encode::encode($encoding, $_) if Encode::is_utf8($_);
-    } @args;
+    @args = map { Encode::encode($encoding, $_) } @args;
     
     return $self->SUPER::execute(@args);
 }
