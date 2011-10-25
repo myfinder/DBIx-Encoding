@@ -9,7 +9,7 @@ package DBIx::Encoding;
 use base qw(DBI);
 
 use version;
-our $VERSION = '0.06';
+our $VERSION = '0.05';
 
 ###
 # DBIx::Encoding::db
