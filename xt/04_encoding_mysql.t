@@ -36,9 +36,7 @@ my $mysqld_cp932 = Test::mysqld->new(
 ) or plan skip_all => $Test::mysqld::errstr;
 
 ###
-# test plan
-#plan tests => 16;
-
+# test
 # utf8 DB
 my @dsn_utf8 = (
 	'dbi:mysql:test;mysql_socket=' . $mysqld_utf8->my_cnf->{socket},
@@ -196,8 +194,7 @@ $sth_select_utf8_result = $sth_select_utf8->fetchrow_hashref;
 
 $sth_select_utf8->finish;
 
-#isnt($sth_select_utf8_result->{text}, $test_text, 'inserted text is not match');
-is($sth_select_utf8_result->{text}, $test_text, 'inserted text is match');
+isnt($sth_select_utf8_result->{text}, $test_text, 'inserted text is not match');
 
 # cp932 table
 $sth_select_cp932 = $dbh_cp932->prepare(<<'SQL');
@@ -211,8 +208,7 @@ $sth_select_cp932_result = $sth_select_cp932->fetchrow_hashref;
 
 $sth_select_cp932->finish;
 
-#isnt($sth_select_cp932_result->{text}, $test_text, 'inserted text is not match');
-is($sth_select_cp932_result->{text}, $test_text, 'inserted text is match');
+isnt($sth_select_cp932_result->{text}, $test_text, 'inserted text is not match');
 
 ###
 # statement handle method with DBIx::Encoding

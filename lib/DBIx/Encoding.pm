@@ -30,6 +30,15 @@ sub prepare {
     return $sth;
 }
 
+sub do {
+    my ($self, $stmt, $attr, @args) = @_;
+    my $encoding = $self->{private_dbix_encoding}->{encoding};
+
+    @args = map { Encode::encode($encoding, $_) } @args;
+
+    return $self->SUPER::do($stmt, $attr, @args);
+}
+
 ###
 # DBIx::Encoding::st
 #
